@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const adminRoutes = require('./routes/admin');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -60,6 +61,7 @@ mongoose.connection.on('disconnected', () => {
 
 // Route'lar
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Etkinlik route'larını ekle
 app.use('/etkinlik', etkinlikRoutes);

@@ -104,6 +104,26 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+
+
+
+isActive: {
+  type: Boolean,
+  default: true
+},
+onayTarihi: {
+  type: Date
+},
+onaylayanAdmin: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User'
+},
+redSebebi: {
+  type: String,
+  trim: true
+},
+
+
   
   // Takip sistemi
   followers: [{

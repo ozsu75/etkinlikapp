@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import RegisterForm from './components/RegisterForm';
 import LoginForm from './components/LoginForm';
+import AdminRoute from './components/AdminRoute';
+import AdminDashboard from './components/AdminDashboard';
 import './App.css';
 
 function App() {
@@ -34,4 +36,18 @@ function App() {
   );
 }
 
+// Route tanımı içinde:
+<Route 
+  path="/admin/*" 
+  element={
+    <AdminRoute>
+      <AdminDashboard />
+    </AdminRoute>
+  } 
+/>
+
 export default App;
+
+
+
+
