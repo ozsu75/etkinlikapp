@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= etkinlik.baslik %> - EtkinlikApp</title>
+    <%- include('../partials/head') %>
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="container mt-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Ana Sayfa</a></li>
+                <li class="breadcrumb-item"><a href="/etkinlikler">Etkinlikler</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= etkinlik.baslik %></li>
+            </ol>
+        </nav>
+        
+        <!-- Etkinlik Detayları -->
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Etkinlik Görseli -->
+                <div class="card mb-4">
+                    <img src="<%= etkinlik.kapakResmi || '/images/default-event.jpg' %>" class="card-img-top" alt="<%= etkinlik.baslik %>" style="max-height: 400px; object-fit: cover;">
+                </div>
+                
+                <!-- Etkinlik Bilgileri -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h1 class="card-title h3"><%= etkinlik.baslik %></h1>
+                            <span class="badge bg-<%= 
+                                etkinlik.durum === 'yayinda' ? 'success' : 
+                                etkinlik.durum === 'taslak' ? 'secondary' : 
+                                etkinlik.durum === 'iptal' ? 'danger' : 'info' 
+                            %>">
+                                <%= etkinlik.durum === 'yayinda' ? 'Yayında' : 
+                                    etkinlik.durum === 'taslak' ? 'Taslak' : 
+                                    etkinlik.durum === 'iptal' ? 'İptal' : 'Tamamlandı' 
+                                %>
+                            </span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <p class="card-text"><%= etkinlik.aciklama %></p>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Etkinlik Detayları</h5>
+                                
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                    <div>
+                                        <strong>Tarih:</strong><br>
+                                        <%= new Date(etkinlik.etkinlikTarihi).toLocaleDateString('tr-TR', { 
+                                            weekday: 'long', 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        }) %>
+                                    </div>
+                                </div>
+                                
+                                <% if (etkinlik.sonBasvuruTarihi) { %>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-hourglass-end text-primary me-2"></i>
+                                        <div>
+                                            <strong>Son Başvuru:</strong><br>
+                                            <%= new Date(etkinlik.sonBasvuruTarihi).toLocaleDateString('tr-TR', { 
+                                                weekday: 'long', 
+                                                year: 'numeric', 
+                                                month: 'long', 
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            }) %>
+                                        </div>
+                                    </div>
+                                <% } %>
+                                
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                    <div>
+                                        <strong>Konum:</strong><br>
+                                        <%= etkinlik.konum %>
+                                        <% if (etkinlik.adress) { %><br><small class="text-muted"><%= etkinlik.adres %></small><% } %>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-tag text-primary me-2"></i>
+                                    <div>
+                                        <strong>Kategoriler:</strong><br>
+                                        <% etkinlik.kategoriler.forEach(kategori => { %>
+                                            <span class="badge bg-info me-1"><%= kategori %></span>
+                                        <% }) %>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-money-bill-wave text-primary me-2"></i>
+                                    <div>
+                                        <strong>Ücret:</strong><br>
+                                        <% if (etkinlik.ucretli) { %>
+                                            <span class="badge bg-warning text-dark">₺<%= etkinlik.ucret %></span>
+                                        <% } else { %>
+                                            <span class="badge bg-success">Ücretsiz</span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-users text-primary me-2"></i>
+                                    <div>
+                                        <strong>Katılımcı:</strong><br>
+                                        <span class="badge bg-light text-dark">
+                                            <%= etkinlik.katilimciSayisi %>
+                                            <% if (etkinlik.kontenjan) { %> / <%= etkinlik.kontenjan %> <% } %>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <!-- Harita (Enlem/boylam varsa) -->
+                                <% if (etkinlik.enlem && etkinlik.boylam) { %>
+                                    <h5 class="mb-3">Konum</h5>
+                                    <div id="harita" style="height: 300px; border-radius: 8px;" class="mb-3"></div>
+                                <% } %>
+                                
+                                <!-- Etiketler -->
+                                <% if (etkinlik.etiketler && etkinlik.etiketler.length > 0) { %>
+                                    <h5 class="mb-3">Etiketler</h5>
+                                    <div class="d-flex flex-wrap">
+                                        <% etkinlik.etiketler.forEach(etiket => { %>
+                                            <span class="badge bg-secondary me-1 mb-1">#<%= etiket %></span>
+                                        <% }) %>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                        
+                        <!-- Etkinlik İşlem Butonları -->
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            <!-- Katıl Butonu -->
+                            <% if (etkinlik.durum === 'yayinda') { %>
+                                <% if (kullaniciDurum.katiliyor) { %>
+                                    <button class="btn btn-outline-danger" id="ayrilBtn" data-etkinlik-id="<%= etkinlik._id %>">
+                                        <i class="fas fa-times"></i> Ayrıl
+                                    </button>
+                                <% } else { %>
+                                    <button class="btn btn-success" id="katilBtn" data-etkinlik-id="<%= etkinlik._id %>"
+                                        <%= (etkinlik.kontenjan && etkinlik.katilimciSayisi >= etkinlik.kontenjan) || 
+                                            (etkinlik.sonBasvuruTarihi && new Date() > etkinlik.sonBasvuruTarihi) ? 'disabled' : '' %>>
+                                        <i class="fas fa-check"></i> 
+                                        <%= (etkinlik.kontenjan && etkinlik.katilimciSayisi >= etkinlik.kontenjan) ? 'Kontenjan Doldu' : 
+                                            (etkinlik.sonBasvuruTarihi && new Date() > etkinlik.sonBasvuruTarihi) ? 'Başvuru Süresi Doldu' : 'Katıl' %>
+                                    </button>
+                                <% } %>
+                            <% } %>
+                            
+                            <!-- Beğeni Butonu -->
+                            <% if (kullaniciDurum.begeniyor) { %>
+                                <button class="btn btn-outline-primary" id="begeniKaldirBtn" data-etkinlik-id="<%= etkinlik._id %>">
+                                    <i class="fas fa-heart"></i> Beğenildi (<span id="begeniSayisi"><%= etkinlik.begeniSayisi %></span>)
+                                </button>
+                            <% } else { %>
+                                <button class="btn btn-outline-secondary" id="begenBtn" data-etkinlik-id="<%= etkinlik._id %>">
+                                    <i class="far fa-heart"></i> Beğen (<span id="begeniSayisi"><%= etkinlik.begeniSayisi %></span>)
+                                </button>
+                            <% } %>
+                            
+                            <!-- Favori Butonu -->
+                            <% if (kullaniciDurum.favoriliyor) { %>
+                                <button class="btn btn-outline-warning" id="favoriCikarBtn" data-etkinlik-id="<%= etkinlik._id %>">
+                                    <i class="fas fa-star"></i> Favorilerden Çıkar
+                                </button>
+                            <% } else { %>
+                                <button class="btn btn-outline-secondary" id="favoriEkleBtn" data-etkinlik-id="<%= etkinlik._id %>">
+                                    <i class="far fa-star"></i> Favorilere Ekle
+                                </button>
+                            <% } %>
+                            
+                            <!-- Düzenle Butonu (Sadece etkinlik sahibi veya admin) -->
+                            <% if (user && (user._id.equals(etkinlik.olusturan._id) || user.rol === 'admin')) { %>
+                                <a href="/etkinlik/<%= etkinlik._id %>/duzenle" class="btn btn-outline-primary">
+                                    <i class="fas fa-edit"></i> Düzenle
+                                </a>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Yorumlar -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            Yorumlar (<span id="yorumSayisi"><%= etkinlik.yorumSayisi %></span>)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Yorum Formu -->
+                        <% if (user) { %>
+                            <form id="yorumForm" class="mb-4">
+                                <div class="mb-3">
+                                    <label for="yorum" class="form-label">Yorumunuz</label>
+                                    <textarea class="form-control" id="yorum" name="yorum" rows="3" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="puan" class="form-label">Puan (opsiyonel)</label>
+                                    <select class="form-select" id="puan" name="puan">
+                                        <option value="">Puan vermek istemiyorum</option>
+                                        <option value="5">5 - Mükemmel</option>
+                                        <option value="4">4 - Çok İyi</option>
+                                        <option value="3">3 - İyi</option>
+                                        <option value="2">2 - Orta</option>
+                                        <option value="1">1 - Kötü</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Yorum Yap</button>
+                            </form>
+                        <% } else { %>
+                            <div class="alert alert-info">
+                                Yorum yapmak için <a href="/giris">giriş yapın</a>.
+                            </div>
+                        <% } %>
+                        
+                        <!-- Yorum Listesi -->
+                        <div id="yorumListesi">
+                            <% if (etkinlik.yorumlar.length === 0) { %>
+                                <p class="text-muted">Henüz yorum yapılmamış.</p>
+                            <% } else { %>
+                                <% etkinlik.yorumlar.forEach(yorum => { %>
+                                    <div class="d-flex mb-4 yorum-item" data-yorum-id="<%= yorum._id %>">
+                                        <img src="<%= yorum.user.profilResmi || '/images/default-avatar.jpg' %>" 
+                                             alt="<%= yorum.user.isim %> <%= yorum.user.soyisim %>" 
+                                             class="rounded-circle me-3" width="50" height="50" style="object-fit: cover;">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <h6 class="mb-0"><%= yorum.user.isim %> <%= yorum.user.soyisim %></h6>
+                                                <small class="text-muted"><%= new Date(yorum.tarih).toLocaleDateString('tr-TR') %></small>
+                                            </div>
+                                            <% if (yorum.puan) { %>
+                                                <div class="mb-1">
+                                                    <% for (let i = 0; i < 5; i++) { %>
+                                                        <i class="fas fa-star <%= i < yorum.puan ? 'text-warning' : 'text-muted' %>"></i>
+                                                    <% } %>
+                                                </div>
+                                            <% } %>
+                                            <p class="mb-1"><%= yorum.yorum %></p>
+                                            
+                                            <!-- Yorum Silme Butonu (Sadece yorum sahibi veya admin) -->
+                                            <% if (user && (user._id.equals(yorum.user._id) || user.rol === 'admin')) { %>
+                                                <button class="btn btn-sm btn-outline-danger yorum-sil-btn" data-yorum-id="<%= yorum._id %>">
+                                                    <i class="fas fa-trash"></i> Sil
+                                                </button>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sağ Sidebar -->
+            <div class="col-lg-4">
+                <!-- Organizatör Bilgileri -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Organizatör</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="<%= etkinlik.olusturan.profilResmi || '/images/default-avatar.jpg' %>" 
+                                 alt="<%= etkinlik.olusturan.isim %> <%= etkinlik.olusturan.soyisim %>" 
+                                 class="rounded-circle me-3" width="60" height="60" style="object-fit: cover;">
+                            <div>
+                                <h6 class="mb-0"><%= etkinlik.olusturan.isim %> <%= etkinlik.olusturan.soyisim %></h6>
+                                <% if (etkinlik.kurum) { %>
+                                    <small class="text-muted"><%= etkinlik.kurum.isim %></small>
+                                <% } %>
+                            </div>
+                        </div>
+                        
+                        <!-- Takip Butonu (Kullanıcı profili için) -->
+                        <button class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-user-plus"></i> Takip Et
+                        </button>
+                        
+                        <!-- Mesaj Butonu (Kullanıcı kendisi değilse) -->
+                        <% if (user && !user._id.equals(etkinlik.olusturan._id)) { %>
+                            <button class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-envelope"></i> Mesaj Gönder
+                            </button>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <!-- Katılımcılar -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Katılımcılar (<%= etkinlik.katilimcilar.length %>)</h5>
+                    </div>
+                    <div class="card-body">
+                        <% if (etkinlik.katilimcilar.length === 0) { %>
+                            <p class="text-muted">Henüz katılımcı yok.</p>
+                        <% } else { %>
+                            <div class="d-flex flex-wrap">
+                                <% etkinlik.katilimcilar.slice(0, 12).forEach(katilimci => { %>
+                                    <img src="<%= katilimci.user.profilResmi || '/images/default-avatar.jpg' %>" 
+                                         alt="<%= katilimci.user.isim %> <%= katilimci.user.soyisim %>" 
+                                         class="rounded-circle me-2 mb-2" width="40" height="40" style="object-fit: cover;"
+                                         data-bs-toggle="tooltip" data-bs-placement="top" title="<%= katilimci.user.isim %> <%= katilimci.user.soyisim %>">
+                                <% }) %>
+                                
+                                <% if (etkinlik.katilimcilar.length > 12) { %>
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2 mb-2" 
+                                         style="width: 40px; height: 40px;" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                         title="+<%= etkinlik.katilimcilar.length - 12 %> kişi daha">
+                                        +<%= etkinlik.katilimcilar.length - 12 %>
+                                    </div>
+                                <% } %>
+                            </div>
+                            
+                            <% if (etkinlik.katilimcilar.length > 0) { %>
+                                <a href="#" class="btn btn-sm btn-outline-primary w-100 mt-2">Tüm Katılımcıları Gör</a>
+                            <% } %>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <!-- Benzer Etkinlikler (Opsiyonel) -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Benzer Etkinlikler</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Benzer etkinlikler burada listelenecek.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <%- include('../partials/footer') %>
+    
+    <!-- Harita JS (Enlem/boylam varsa) -->
+    <% if (etkinlik.enlem && etkinlik.boylam) { %>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+        
+        <script>
+            // Harita başlatma
+            document.addEventListener('DOMContentLoaded', function() {
+                const harita = L.map('harita').setView([<%= etkinlik.enlem %>, <%= etkinlik.boylam %>], 15);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(harita);
+                
+                L.marker([<%= etkinlik.enlem %>, <%= etkinlik.boylam %>])
+                    .addTo(harita)
+                    .bindPopup('<%= etkinlik.baslik %>')
+                    .openPopup();
+            });
+        </script>
+    <% } %>
+    
+    <!-- Etkinlik İşlemleri JS -->
+    <script src="/js/etkinlik.js"></script>
+    
+    <script>
+        // Yorum formu işleme
+        document.getElementById('yorumForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const response = await fetch(`/etkinlik/<%= etkinlik._id %>/yorum`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(formData)
+            });
+            
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Yorum eklenirken bir hata oluştu');
+            }
+        });
+        
+        // Yorum silme
+        document.querySelectorAll('.yorum-sil-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if (!confirm('Yorumu silmek istediğinize emin misiniz?')) return;
+                
+                const yorumId = this.dataset.yorumId;
+                const response = await fetch(`/etkinlik/<%= etkinlik._id %>/yorum/${yorumId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.querySelector(`.yorum-item[data-yorum-id="${yorumId}"]`).remove();
+                    document.getElementById('yorumSayisi').textContent = result.yorumSayisi;
+                } else {
+                    alert(result.message);
+                }
+            });
+        });
+        
+        // Tooltip'leri başlat
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
+</body>
+</html>

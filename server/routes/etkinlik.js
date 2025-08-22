@@ -1,0 +1,59 @@
+const express = require('express');
+const router = express.Router();
+const etkinlikController = require('../controllers/etkinlikController'); // ← DÜZELTİLDİ
+const { mustBeAuthenticated } = require('../middlewares/auth'); // ← DÜZELTİLDİ
+const { catchErrors } = require('../handlers/errorHandlers'); // ← DÜZELTİLDİ
+const { upload } = require('../config/cloudinary'); // ← DÜZELTİLDİ
+
+
+// Tüm etkinlikleri listeleme
+router.get('/', catchErrors(etkinlikController.etkinlikListesi));
+
+// Etkinlik detayı
+router.get('/:id', catchErrors(etkinlikController.etkinlikDetay));
+
+// Yeni etkinlik oluşturma formu (Sadece kurumsal kullanıcılar)
+router.post('/yeni/olustur', mustBeAuthenticated, upload.single('kapakResmi'), catchErrors(etkinlikController.etkinlikOlustur));
+router.post('/:id/duzenle', mustBeAuthenticated, upload.single('kapakResmi'), catchErrors(etkinlikController.etkinlikDuzenle));
+
+
+// Yeni etkinlik oluşturma (Sadece kurumsal kullanıcılar)
+router.post('/yeni/olustur', mustBeAuthenticated, catchErrors(etkinlikController.etkinlikOlustur));
+
+// Etkinlik düzenleme formu
+router.get('/:id/duzenle', mustBeAuthenticated, catchErrors(etkinlikController.etkinlikDuzenleForm));
+
+// Etkinlik düzenleme
+router.post('/:id/duzenle', mustBeAuthenticated, catchErrors(etkinlikController.etkinlikDuzenle));
+
+// Etkinlik silme
+router.post('/:id/sil', mustBeAuthenticated, catchErrors(etkinlikController.etkinlikSil));
+
+// Etkinliğe katılma (AJAX)
+router.post('/:id/katil', mustBeAuthenticated, catchErrors(etkinlikController.etkinligeKatil));
+
+// Etkinlikten ayrılma (AJAX)
+router.post('/:id/ayril', mustBeAuthenticated, catchErrors(etkinlikController.etkinliktenAyril));
+
+// Etkinliği beğenme (AJAX)
+router.post('/:id/begen', mustBeAuthenticated, catchErrors(etkinlikController.etkinlikBegen));
+
+// Etkinlik beğenisini kaldırma (AJAX)
+router.post('/:id/begeni-kaldir', mustBeAuthenticated, catchErrors(etkinlikController.etkinlikBegeniKaldir));
+
+// Etkinliği favorilere ekleme (AJAX)
+router.post('/:id/favori-ekle', mustBeAuthenticated, catchErrors(etkinlikController.etkinlikFavoriEkle));
+
+// Etkinliği favorilerden çıkarma (AJAX)
+router.post('/:id/favori-cikar', mustBeAuthenticated, catchErrors(etkinlikController.etkinlikFavoriCikar));
+
+// Yorum ekleme
+router.post('/:id/yorum', mustBeAuthenticated, catchErrors(etkinlikController.yorumEkle));
+
+// Yorum silme (AJAX)
+router.delete('/:id/yorum/:yorumId', mustBeAuthenticated, catchErrors(etkinlikController.yorumSil));
+
+// Kullanıcının etkinliklerini listeleme
+router.get('/profil/etkinliklerim', mustBeAuthenticated, catchErrors(etkinlikController.kullaniciEtkinlikleri));
+
+module.exports = router;

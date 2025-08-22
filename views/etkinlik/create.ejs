@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yeni Etkinlik Oluştur - EtkinlikApp</title>
+    <%- include('../partials/head') %>
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title mb-0">Yeni Etkinlik Oluştur</h2>
+                    </div>
+                    <div class="card-body">
+                        <form action="/etkinlikler/yeni/olustur" method="POST" enctype="multipart/form-data" id="etkinlikForm">
+                            <!-- Başlık -->
+                            <div class="mb-3">
+                                <label for="baslik" class="form-label">Etkinlik Başlığı <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="baslik" name="baslik" value="<%= formData?.baslik || '' %>" required>
+                            </div>
+                            
+                            <!-- Açıklama -->
+                            <div class="mb-3">
+                                <label for="aciklama" class="form-label">Etkinlik Açıklaması <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="aciklama" name="aciklama" rows="5" required><%= formData?.aciklama || '' %></textarea>
+                            </div>
+                            
+                            <!-- Kısa Açıklama -->
+                            <div class="mb-3">
+                                <label for="kisaAciklama" class="form-label">Kısa Açıklama (Maksimum 150 karakter)</label>
+                                <textarea class="form-control" id="kisaAciklama" name="kisaAciklama" rows="2" maxlength="150"><%= formData?.kisaAciklama || '' %></textarea>
+                                <div class="form-text">Ana sayfada gösterilecek kısa açıklama</div>
+                            </div>
+                            
+                            <div class="row">
+                                <!-- Etkinlik Tarihi -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="etkinlikTarihi" class="form-label">Etkinlik Tarihi <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control" id="etkinlikTarihi" name="etkinlikTarihi" value="<%= formData?.etkinlikTarihi || '' %>" required>
+                                </div>
+                                
+                                <!-- Son Başvuru Tarihi -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="sonBasvuruTarihi" class="form-label">Son Başvuru Tarihi</label>
+                                    <input type="datetime-local" class="form-control" id="sonBasvuruTarihi" name="sonBasvuruTarihi" value="<%= formData?.sonBasvuruTarihi || '' %>">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <!-- Konum -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="konum" class="form-label">Konum (Şehir/İlçe) <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="konum" name="konum" value="<%= formData?.konum || '' %>" required>
+                                </div>
+                                
+                                <!-- Adres -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="adres" class="form-label">Adres</label>
+                                    <input type="text" class="form-control" id="adres" name="adres" value="<%= formData?.adres || '' %>">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <!-- Enlem -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="enlem" class="form-label">Enlem (Harita için)</label>
+                                    <input type="number" step="any" class="form-control" id="enlem" name="enlem" value="<%= formData?.enlem || '' %>">
+                                </div>
+                                
+                                <!-- Boylam -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="boylam" class="form-label">Boylam (Harita için)</label>
+                                    <input type="number" step="any" class="form-control" id="boylam" name="boylam" value="<%= formData?.boylam || '' %>">
+                                </div>
+                            </div>
+                            
+                            <!-- Kapak Resmi -->
+                            <div class="mb-3">
+                                <label for="kapakResmi" class="form-label">Kapak Resmi</label>
+                                <input type="file" class="form-control" id="kapakResmi" name="kapakResmi" accept="image/*">
+                                <div class="form-text">Önerilen boyut: 1200x600 piksel</div>
+                            </div>
+                            
+                            <!-- Kategoriler -->
+                            <div class="mb-3">
+                                <label for="kategoriler" class="form-label">Kategoriler</label>
+                                <input type="text" class="form-control" id="kategoriler" name="kategoriler" value="<%= formData?.kategoriler || '' %>" placeholder="Konser, Tiyatro, Spor (virgülle ayırın)">
+                            </div>
+                            
+                            <div class="row">
+                                <!-- Ücretli mi? -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Ücretli Etkinlik mi?</label>
+                                    <div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="ucretli" id="ucretliEvet" value="true" <%= formData?.ucretli === 'true' ? 'checked' : '' %>>
+                                            <label class="form-check-label" for="ucretliEvet">Evet</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="ucretli" id="ucretliHayir" value="false" <%= !formData || formData.ucretli === 'false' ? 'checked' : '' %>>
+                                            <label class="form-check-label" for="ucretliHayir">Hayır</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Ücret -->
+                                <div class="col-md-6 mb-3" id="ucretField" style="display: none;">
+                                    <label for="ucret" class="form-label">Ücret (₺)</label>
+                                    <input type="number" class="form-control" id="ucret" name="ucret" min="0" step="0.01" value="<%= formData?.ucret || '0' %>">
+                                </div>
+                            </div>
+                            
+                            <!-- Kontenjan -->
+                            <div class="mb-3">
+                                <label for="kontenjan" class="form-label">Kontenjan (Sınırsız için boş bırakın)</label>
+                                <input type="number" class="form-control" id="kontenjan" name="kontenjan" min="1" value="<%= formData?.kontenjan || '' %>">
+                            </div>
+                            
+                            <!-- Etiketler -->
+                            <div class="mb-3">
+                                <label for="etiketler" class="form-label">Etiketler</label>
+                                <input type="text" class="form-control" id="etiketler" name="etiketler" value="<%= formData?.etiketler || '' %>" placeholder="etiket1, etiket2, etiket3 (virgülle ayırın)">
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">Etkinlik Oluştur</button>
+                                <a href="/etkinlikler" class="btn btn-secondary">İptal</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <%- include('../partials/footer') %>
+    
+    <script>
+        // Ücret alanını göster/gizle
+        document.querySelectorAll('input[name="ucretli"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById('ucretField').style.display = this.value === 'true' ? 'block' : 'none';
+            });
+        });
+        
+        // Sayfa yüklendiğinde ücret alanını kontrol et
+        document.addEventListener('DOMContentLoaded', function() {
+            const ucretliEvet = document.getElementById('ucretliEvet');
+            if (ucretliEvet.checked) {
+                document.getElementById('ucretField').style.display = 'block';
+            }
+        });
+        
+        // Form validation
+        document.getElementById('etkinlikForm').addEventListener('submit', function(e) {
+            const etkinlikTarihi = new Date(document.getElementById('etkinlikTarihi').value);
+            const sonBasvuruTarihi = document.getElementById('sonBasvuruTarihi').value 
+                ? new Date(document.getElementById('sonBasvuruTarihi').value)
+                : null;
+            
+            if (sonBasvuruTarihi && sonBasvuruTarihi > etkinlikTarihi) {
+                e.preventDefault();
+                alert('Son başvuru tarihi etkinlik tarihinden sonra olamaz');
+                return false;
+            }
+            
+            const ucretliEvet = document.getElementById('ucretliEvet').checked;
+            const ucret = parseFloat(document.getElementById('ucret').value);
+            
+            if (ucretliEvet && (isNaN(ucret) || ucret < 0)) {
+                e.preventDefault();
+                alert('Lütfen geçerli bir ücret girin');
+                return false;
+            }
+            
+            return true;
+        });
+    </script>
+</body>
+</html>

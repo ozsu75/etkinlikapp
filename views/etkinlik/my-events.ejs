@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= baslik %> - EtkinlikApp</title>
+    <%- include('../partials/head') %>
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4"><%= baslik %></h2>
+                
+                <!-- Tab Menü -->
+                <ul class="nav nav-tabs mb-4">
+                    <li class="nav-item">
+                        <a class="nav-link <%= tip === 'olusturduklarim' ? 'active' : '' %>" href="/etkinlik/profil/etkinliklerim?tip=olusturduklarim">Oluşturduklarım</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= tip === 'katildiklarim' ? 'active' : '' %>" href="/etkinlik/profil/etkinliklerim?tip=katildiklarim">Katıldıklarım</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= tip === 'favorilerim' ? 'active' : '' %>" href="/etkinlik/profil/etkinliklerim?tip=favorilerim">Favorilerim</a>
+                    </li>
+                </ul>
+                
+                <% if (etkinlikler.length === 0) { %>
+                    <div class="alert alert-info">
+                        <%= tip === 'olusturduklarim' ? 'Henüz hiç etkinlik oluşturmadınız.' : 
+                           tip === 'katildiklarim' ? 'Henüz hiç etkinliğe katılmadınız.' : 
+                           'Henüz hiç etkinliği favorilemediniz.' %>
+                    </div>
+                <% } else { %>
+                    <div class="row">
+                        <% etkinlikler.forEach(etkinlik => { %>
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <%- include('../partials/etkinlik-card', {etkinlik: etkinlik}) %>
+                            </div>
+                        <% }) %>
+                    </div>
+                    
+                    <!-- Sayfalama -->
+                    <% if (toplamSayfa > 1) { %>
+                        <nav aria-label="Etkinlik sayfaları">
+                            <ul class="pagination justify-content-center">
+                                <% if (sayfa > 1) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?tip=<%= tip %>&sayfa=<%= sayfa - 1 %>">Önceki</a>
+                                    </li>
+                                <% } %>
+                                
+                                <% for (let i = 1; i <= toplamSayfa; i++) { %>
+                                    <li class="page-item <%= i === sayfa ? 'active' : '' %>">
+                                        <a class="page-link" href="?tip=<%= tip %>&sayfa=<%= i %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+                                
+                                <% if (sayfa < toplamSayfa) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?tip=<%= tip %>&sayfa=<%= sayfa + 1 %>">Sonraki</a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
+                    <% } %>
+                <% } %>
+            </div>
+        </div>
+    </main>
+    
+    <%- include('../partials/footer') %>
+</body>
+</html>

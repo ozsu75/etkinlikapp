@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etkinlikler - EtkinlikApp</title>
+    <%- include('../partials/head') %>
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="container mt-4">
+        <div class="row">
+            <!-- Filtreleme Bölümü -->
+            <div class="col-md-3 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Filtrele</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="filterForm">
+                            <div class="mb-3">
+                                <label for="kategori" class="form-label">Kategori</label>
+                                <select class="form-select" id="kategori" name="kategori">
+                                    <option value="">Tüm Kategoriler</option>
+                                    <% ['Konser', 'Tiyatro', 'Spor', 'Festival', 'Seminer', 'Sergi', 'Diğer'].forEach(kategori => { %>
+                                        <option value="<%= kategori %>" <%= filtreler.kategori === kategori ? 'selected' : '' %>><%= kategori %></option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="tarih" class="form-label">Tarih</label>
+                                <input type="date" class="form-control" id="tarih" name="tarih" value="<%= filtreler.tarih || '' %>">
+                            </div>
+                            <div class="mb-3">
+                                <label for="konum" class="form-label">Konum</label>
+                                <input type="text" class="form-control" id="konum" name="konum" value="<%= filtreler.konum || '' %>" placeholder="Şehir veya ilçe">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Filtrele</button>
+                            <% if (filtreler.kategori || filtreler.tarih || filtreler.konum) { %>
+                                <a href="/etkinlikler" class="btn btn-outline-secondary w-100 mt-2">Filtreleri Temizle</a>
+                            <% } %>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Yeni Etkinlik Butonu (Sadece kurumsal kullanıcılar için) -->
+                <% if (user && user.kayitTuru === 'kurumsal' && user.kurum && user.kurum.onayli) { %>
+                    <div class="d-grid mt-3">
+                        <a href="/etkinlikler/yeni/olustur" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Yeni Etkinlik Oluştur
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+            
+            <!-- Etkinlik Listesi -->
+            <div class="col-md-9">
+                <h2 class="mb-4">Etkinlikler</h2>
+                
+                <% if (etkinlikler.length === 0) { %>
+                    <div class="alert alert-info">
+                        <% if (filtreler.kategori || filtreler.tarih || filtreler.konum) { %>
+                            Filtreleme kriterlerinize uygun etkinlik bulunamadı.
+                        <% } else { %>
+                            Henüz hiç etkinlik bulunmamaktadır.
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <div class="row">
+                        <% etkinlikler.forEach(etkinlik => { %>
+                            <div class="col-lg-6 mb-4">
+                                <%- include('../partials/etkinlik-card', {etkinlik: etkinlik}) %>
+                            </div>
+                        <% }) %>
+                    </div>
+                    
+                    <!-- Sayfalama -->
+                    <% if (toplamSayfa > 1) { %>
+                        <nav aria-label="Etkinlik sayfaları">
+                            <ul class="pagination justify-content-center">
+                                <% if (sayfa > 1) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?sayfa=<%= sayfa - 1 %><%= filtreler.kategori ? '&kategori=' + filtreler.kategori : '' %><%= filtreler.tarih ? '&tarih=' + filtreler.tarih : '' %><%= filtreler.konum ? '&konum=' + filtreler.konum : '' %>">Önceki</a>
+                                    </li>
+                                <% } %>
+                                
+                                <% for (let i = 1; i <= toplamSayfa; i++) { %>
+                                    <li class="page-item <%= i === sayfa ? 'active' : '' %>">
+                                        <a class="page-link" href="?sayfa=<%= i %><%= filtreler.kategori ? '&kategori=' + filtreler.kategori : '' %><%= filtreler.tarih ? '&tarih=' + filtreler.tarih : '' %><%= filtreler.konum ? '&konum=' + filtreler.konum : '' %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+                                
+                                <% if (sayfa < toplamSayfa) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?sayfa=<%= sayfa + 1 %><%= filtreler.kategori ? '&kategori=' + filtreler.kategori : '' %><%= filtreler.tarih ? '&tarih=' + filtreler.tarih : '' %><%= filtreler.konum ? '&konum=' + filtreler.konum : '' %>">Sonraki</a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
+                    <% } %>
+                <% } %>
+            </div>
+        </div>
+    </main>
+    
+    <%- include('../partials/footer') %>
+    
+    <script>
+        // Filtre formu submit olduğunda URL parametrelerini ekle
+        document.getElementById('filterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const params = new URLSearchParams();
+            
+            for (const [key, value] of formData.entries()) {
+                if (value) params.append(key, value);
+            }
+            
+            window.location.href = '/etkinlikler?' + params.toString();
+        });
+    </script>
+</body>
+</html>
