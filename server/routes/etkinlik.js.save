@@ -1,7 +1,7 @@
 constqqq express = require('express');
 const router = express.Router();
 const etkinlikController = require('../controllers/etkinlikController'); // ← DÜZELTİLDİ
-const { mustBeAuthenticated } = require('../middlewares/auth'); // ← DÜZELTİLDİ
+const { mustBeAuthenticated } = require('../middleware/auth'); // ← DÜZELTİLDİ
 const { catchErrors } = require('../handlers/errorHandlers'); // ← DÜZELTİLDİ
 const { upload } = require('../config/cloudinary'); // ← DÜZELTİLDİ
 

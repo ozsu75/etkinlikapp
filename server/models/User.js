@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -105,23 +104,21 @@ const userSchema = new mongoose.Schema({
     default: Date.now
   },
 
-
-
-isActive: {
-  type: Boolean,
-  default: true
-},
-onayTarihi: {
-  type: Date
-},
-onaylayanAdmin: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: 'User'
-},
-redSebebi: {
-  type: String,
-  trim: true
-},
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  onayTarihi: {
+    type: Date
+  },
+  onaylayanAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  redSebebi: {
+    type: String,
+    trim: true
+  },
 
 
   
@@ -154,6 +151,11 @@ userSchema.pre('save', async function(next) {
 // Şifre karşılaştırma
 userSchema.methods.correctPassword = async function(candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+// Admin kontrol metodu - DOĞRU YERDE (schema tanımından SONRA)
+userSchema.methods.isAdmin = function() {
+  return this.email === process.env.ADMIN_EMAIL;
 };
 
 module.exports = mongoose.model('User', userSchema);

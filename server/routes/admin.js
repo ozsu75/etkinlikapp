@@ -3,8 +3,8 @@ const router = express.Router();
 const User = require('../models/User');
 const Kurum = require('../models/Kurum');
 const Etkinlik = require('../models/Etkinlik');
-const auth = require('../middlewares/auth');
-const adminAuth = require('../middlewares/adminAuth');
+const auth = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 
 // Tüm kullanıcıları listele
 router.get('/kullanicilar', auth, adminAuth, async (req, res) => {

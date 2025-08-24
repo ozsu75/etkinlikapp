@@ -1,3 +1,4 @@
+
 const adminAuth = (req, res, next) => {
   try {
     // Basit admin kontrolü - gerçek uygulamada daha güvenli bir yöntem kullanın
