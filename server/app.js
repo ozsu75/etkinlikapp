@@ -4,6 +4,8 @@ const adminRoutes = require('./routes/admin');
 const cors = require('cors');
 require('dotenv').config();
 
+
+
 // Hata yakalayıcıları import et
 const {
   notFound,
@@ -63,9 +65,8 @@ mongoose.connection.on('disconnected', () => {
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Etkinlik route'larını ekle
-app.use('/etkinlik', etkinlikRoutes);
-app.use('/etkinlikler', etkinlikRoutes); // İki farklı URL için de çalışsın
+// Etkinlik route'larını ekle - SADECE BİR TANE KULLAN
+app.use('/etkinlikler', etkinlikRoutes);
 
 // Kök route - TEST için
 app.get('/', (req, res) => {
