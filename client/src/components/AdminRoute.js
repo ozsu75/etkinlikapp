@@ -1,19 +1,21 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { isAdmin } from '../utils/auth';
+// AdminRoute.js - DÜZELTİLMİŞ HALİ
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { isAdminUser } from '../utils/auth'; // İsim değiştirdik
 
 const AdminRoute = ({ children }) => {
-  const navigate = useNavigate();
+  const { user } = useAuth();
   
-  useEffect(() => {
-    if (!isAdmin()) {
-      navigate('/');
-    }
-  }, [navigate]);
+  if (!user) {
+    return <Navigate to="/giris" replace />;
+  }
   
-  return isAdmin() ? children : null;
+  if (!isAdminUser(user)) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
 };
 
 export default AdminRoute;
-
-

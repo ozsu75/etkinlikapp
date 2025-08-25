@@ -1,10 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const adminRoutes = require('./routes/admin');
 const cors = require('cors');
 require('dotenv').config();
-
-
 
 // Hata yakalayıcıları import et
 const {
@@ -19,6 +16,7 @@ const {
 
 // Route importları
 const authRoutes = require('./routes/auth');
+// const adminRoutes = require('./routes/admin'); // GEÇİCİ OLARAK KAPALI
 const etkinlikRoutes = require('./routes/etkinlik');
 
 const app = express();
@@ -63,7 +61,7 @@ mongoose.connection.on('disconnected', () => {
 
 // Route'lar
 app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
+// app.use('/api/admin', adminRoutes); // GEÇİCİ OLARAK KAPALI
 
 // Etkinlik route'larını ekle - SADECE BİR TANE KULLAN
 app.use('/etkinlikler', etkinlikRoutes);

@@ -99,7 +99,6 @@ exports.castErrorHandler = (err, req, res, next) => {
   next(err);
 };
 
-
 module.exports = {
   catchErrors,
   notFound,

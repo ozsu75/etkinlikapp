@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// JWT Authentication Middleware
 const auth = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -24,23 +25,3 @@ const auth = async (req, res, next) => {
 };
 
 module.exports = auth;
-
-
-
-exports.mustBeAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  req.flash('error', 'Bu sayfayı görüntülemek için giriş yapmalısınız');
-  res.redirect('/giris');
-};
-
-exports.mustBeAuthorized = (roles) => {
-  return (req, res, next) => {
-    if (req.isAuthenticated() && roles.includes(req.user.rol)) {
-      return next();
-    }
-    req.flash('error', 'Bu işlem için yetkiniz yok');
-    res.redirect('/');
-  };
-};
