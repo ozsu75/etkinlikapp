@@ -23,7 +23,7 @@ const app = express();
 
 // ✅ CORS AYARLARI
 app.use(cors({
-  origin: 'http://localhost:3000', // Frontend URL
+  origin: true, // Tüm origin'lere izin ver
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   credentials: true

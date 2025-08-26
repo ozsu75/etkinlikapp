@@ -107,7 +107,7 @@ function etkinlikOlusturForm(req, res) {
   res.render('etkinlik/create');
 }
 
-// Yeni etkinlik oluşturma
+// Yeni etkinlik oluşturma - GÜNCELLENDİ
 async function etkinlikOlustur(req, res) {
   try {
     // Sadece kurumsal kullanıcılar etkinlik oluşturabilir
@@ -133,13 +133,27 @@ async function etkinlikOlustur(req, res) {
       etiketler
     } = req.body;
     
-    // Kapak resmi yükleme
+    // Kapak resmi yükleme - GÜNCELLENDİ (Cloudinary için)
     let kapakResmi = 'default-event.jpg';
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'etkinlikapp/etkinlikler'
-      });
-      kapakResmi = result.secure_url;
+      try {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: 'etkinlikapp/etkinlikler',
+          transformation: [
+            { width: 800, height: 600, crop: 'limit' },
+            { quality: 'auto' },
+            { format: 'jpg' }
+          ]
+        });
+        kapakResmi = result.secure_url;
+      } catch (uploadError) {
+        console.error('Resim yükleme hatası:', uploadError);
+        req.flash('error', 'Resim yüklenirken bir hata oluştu');
+        return res.render('etkinlik/create', {
+          hatalar: { kapakResmi: 'Resim yüklenemedi' },
+          formData: req.body
+        });
+      }
     }
     
     // Kategorileri diziye çevirme
@@ -174,10 +188,10 @@ async function etkinlikOlustur(req, res) {
     req.flash('success', 'Etkinlik başarıyla oluşturuldu. Yönetici onayından sonra yayınlanacaktır.');
     res.redirect(`/etkinlik/${yeniEtkinlik._id}`);
   } catch (error) {
-    console.error(error);
-    req.flash('error', 'Etkinlik oluşturulurken bir hata oluştu');
+    console.error('Etkinlik oluşturma hatası:', error);
+    req.flash('error', 'Etkinlik oluşturulurken bir hata oluştu: ' + error.message);
     res.render('etkinlik/create', {
-      hatalar: error.errors,
+      hatalar: error.errors || {},
       formData: req.body
     });
   }
@@ -245,12 +259,29 @@ async function etkinlikDuzenle(req, res) {
       durum
     } = req.body;
     
-    // Kapak resmi güncelleme
+    // Kapak resmi güncelleme - GÜNCELLENDİ (Cloudinary için)
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'etkinlikapp/etkinlikler'
-      });
-      etkinlik.kapakResmi = result.secure_url;
+      try {
+        // Eski resmi sil (opsiyonel)
+        if (etkinlik.kapakResmi && etkinlik.kapakResmi !== 'default-event.jpg') {
+          const publicId = etkinlik.kapakResmi.split('/').pop().split('.')[0];
+          await cloudinary.uploader.destroy(`etkinlikapp/etkinlikler/${publicId}`);
+        }
+        
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: 'etkinlikapp/etkinlikler',
+          transformation: [
+            { width: 800, height: 600, crop: 'limit' },
+            { quality: 'auto' },
+            { format: 'jpg' }
+          ]
+        });
+        etkinlik.kapakResmi = result.secure_url;
+      } catch (uploadError) {
+        console.error('Resim güncelleme hatası:', uploadError);
+        req.flash('error', 'Resim güncellenirken bir hata oluştu');
+        return res.redirect(`/etkinlik/${req.params.id}/duzenle`);
+      }
     }
     
     // Kategorileri diziye çevirme
@@ -294,7 +325,7 @@ async function etkinlikDuzenle(req, res) {
   }
 }
 
-// Etkinlik silme
+// Etkinlik silme - GÜNCELLENDİ (Cloudinary resim silme)
 async function etkinlikSil(req, res) {
   try {
     const etkinlik = await Etkinlik.findById(req.params.id);
@@ -310,6 +341,16 @@ async function etkinlikSil(req, res) {
       return res.redirect(`/etkinlik/${etkinlik._id}`);
     }
     
+    // Cloudinary'den resmi sil
+    if (etkinlik.kapakResmi && etkinlik.kapakResmi !== 'default-event.jpg') {
+      try {
+        const publicId = etkinlik.kapakResmi.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(`etkinlikapp/etkinlikler/${publicId}`);
+      } catch (deleteError) {
+        console.error('Resim silme hatası:', deleteError);
+      }
+    }
+    
     await Etkinlik.findByIdAndDelete(req.params.id);
     
     req.flash('success', 'Etkinlik başarıyla silindi');
@@ -320,6 +361,11 @@ async function etkinlikSil(req, res) {
     res.redirect(`/etkinlik/${req.params.id}`);
   }
 }
+
+// Diğer fonksiyonlar aynı kalacak...
+// etkinligeKatil, etkinliktenAyril, etkinlikBegen, etkinlikBegeniKaldir, 
+// etkinlikFavoriEkle, etkinlikFavoriCikar, yorumEkle, yorumSil, 
+// kullaniciEtkinlikleri fonksiyonları DEĞİŞMEDİ
 
 // Etkinliğe katılma
 async function etkinligeKatil(req, res) {
