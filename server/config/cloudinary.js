@@ -2,21 +2,22 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 
-// Cloudinary yapılandırması
+// Cloudinary konfigürasyonu
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Cloudinary storage yapılandırması
+
+// Multer storage configuration for Cloudinary
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'etkinlikapp',
     allowed_formats: ['jpg', 'jpeg', 'png', 'gif'],
     transformation: [
-      { width: 1200, height: 600, crop: 'limit' },
+      { width: 800, height: 600, crop: 'limit' },
       { quality: 'auto' },
       { format: 'jpg' }
     ]
@@ -25,7 +26,4 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 
-module.exports = {
-  cloudinary,
-  upload
-};
+module.exports = { cloudinary, upload };

@@ -9,14 +9,10 @@ router.get('/', etkinlikController.etkinlikListesi);
 // Etkinlik detayı (Herkes erişebilir)
 router.get('/:id', etkinlikController.etkinlikDetay);
 
-// /yeni route'unu GEÇİCİ OLARAK KALDIRALIM
-// router.get('/yeni', auth, etkinlikController.etkinlikOlusturForm);
-
 // Diğer tüm route'ları GEÇİCİ OLARAK YORUM SATIRI YAPALIM
 /*
-router.post('/yeni/olustur', auth, etkinlikController.etkinlikOlustur);
-router.get('/:id/duzenle', auth, etkinlikController.etkinlikDuzenleForm);
-router.post('/:id/duzenle', auth, etkinlikController.etkinlikDuzenle);
+router.post('/yeni/olustur', auth, upload.single('kapakResmi'), etkinlikController.etkinlikOlustur);
+router.post('/:id/duzenle', auth, upload.single('kapakResmi'), etkinlikController.etkinlikDuzenle);
 router.post('/:id/sil', auth, etkinlikController.etkinlikSil);
 router.post('/:id/katil', auth, etkinlikController.etkinligeKatil);
 router.post('/:id/ayril', auth, etkinlikController.etkinliktenAyril);
